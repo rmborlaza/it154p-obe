@@ -1,0 +1,62 @@
+﻿<Page
+    x:Class="DesktopApp.AttendancePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:DesktopApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    NavigationCacheMode="Required"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Padding="24,4,24,4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Text="Attendance" Grid.Row="0" />
+        <CommandBar Grid.Row="1" Background="Transparent" DefaultLabelPosition="Right">
+            <AppBarButton Icon="Refresh" Tag="Refresh" Label="Refresh" Click="AppBarButton_Click" />
+        </CommandBar>
+        <Grid Grid.Row="2" BorderBrush="{ThemeResource SystemBaseLowColor}" BorderThickness="0,0,0,1.2" Margin="0,8,0,0" Padding="8,0,8,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="ID Number" Style="{StaticResource CaptionTextBlockStyle}" Grid.Column="0" />
+            <TextBlock Text="Name" Style="{StaticResource CaptionTextBlockStyle}" Grid.Column="1" />
+            <TextBlock Text="Attendance Time" Style="{StaticResource CaptionTextBlockStyle}" Grid.Column="2" />
+        </Grid>
+        <ListView x:Name="AttendanceList" ItemsSource="{x:Bind attendanceList}" Grid.Row="3" RightTapped="AttendanceList_RightTapped">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="local:Attendance">
+                    <Grid Margin="8,0,8,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{x:Bind IdNumber}" />
+                        <TextBlock Grid.Column="1" Text="{x:Bind FullName}" />
+                        <TextBlock Grid.Column="3" Text="{x:Bind DateTime}" />
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="Height" Value="50" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.Resources>
+                <MenuFlyout x:Name="RegistryFlyout">
+                    <MenuFlyoutItem Text="View User Information" Tag="View" Click="MenuFlyoutItem_Click" />
+                </MenuFlyout>
+            </ListView.Resources>
+        </ListView>
+    </Grid>
+</Page>

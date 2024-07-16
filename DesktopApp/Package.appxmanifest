@@ -14,7 +14,7 @@
   <mp:PhoneIdentity PhoneProductId="9bf35a5f-e3ca-41b7-a03c-492d606c9648" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>DesktopApp</DisplayName>
+    <DisplayName>Attendance Monitoring</DisplayName>
     <PublisherDisplayName>Ridon</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -32,10 +32,10 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="DesktopApp.App">
       <uap:VisualElements
-        DisplayName="DesktopApp"
+        DisplayName="Attendance Monitoring System"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
-        Description="DesktopApp"
+        Description="RFID-based attendance monitoring system"
         BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
@@ -45,5 +45,12 @@
 
   <Capabilities>
     <Capability Name="internetClient" />
+    <Capability Name="internetClientServer"/>
+    <Capability Name="privateNetworkClientServer"/>
+    <DeviceCapability Name="serialcommunication">
+      <Device Id="any">
+        <Function Type="name:serialPort"/>
+      </Device>
+    </DeviceCapability>
   </Capabilities>
 </Package>

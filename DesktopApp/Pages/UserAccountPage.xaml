@@ -1,0 +1,75 @@
+﻿<Page xmlns:my="using:Microsoft.UI.Xaml.Controls" 
+    x:Class="DesktopApp.UserAccountPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:DesktopApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.Resources>
+        <my:TeachingTip x:Name="PairedTip" Title="ID Paired" Subtitle="Successfully paired ID card with user account." PreferredPlacement="Auto" PlacementMargin="20" IsLightDismissEnabled="True" CloseButtonContent="Close" />
+        <my:TeachingTip x:Name="PassChangedTip" Title="Password Changed" Subtitle="Successfully changed password." PreferredPlacement="Auto" PlacementMargin="20" IsLightDismissEnabled="True" CloseButtonContent="Close" />
+        <my:TeachingTip x:Name="InfoUpdatedTip" Title="Information Updated" Subtitle="Successfully updated user information." PreferredPlacement="Auto" PlacementMargin="20" IsLightDismissEnabled="True" CloseButtonContent="Close" />
+    </Page.Resources>
+    <Grid Margin="24,4,24,4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Text="User Account Information" Grid.Row="0" />
+
+        <CommandBar Grid.Row="1" Background="Transparent" DefaultLabelPosition="Right" >
+            <AppBarButton Icon="Refresh" Tag="Refresh" Label="Refresh" Click="AppBarButton_Click" />
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Tag="Update" Icon="Edit" Label="Update Information" Click="AppBarButton_Click" />
+                <AppBarButton Tag="Pair" Label="Pair New ID Card" Click="AppBarButton_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE963;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Tag="Reset" Label="Reset Password" Click="AppBarButton_Click">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE72E;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+
+        <StackPanel Grid.Row="2" Spacing="4" Margin="0,0,0,16">
+            <TextBlock x:Name="FullnameText" Style="{StaticResource TitleTextBlockStyle}" Text="Fname Lname" />
+            <TextBlock x:Name="UsernameText" Text="Username: " />
+            <TextBlock x:Name="IdNumberText" Text="ID Number: " />
+            <TextBlock x:Name="AccountTypeText" Text="Account Type:  " />
+            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Attendance Report" Margin="0,32,0,0"/>
+        </StackPanel>
+
+        <Grid Grid.Row="3" BorderBrush="{ThemeResource SystemBaseLowColor}" BorderThickness="0,0,0,1.2" Margin="0,4,0,0" Padding="8,0,8,8">
+            <TextBlock Text="Date and Time" Style="{StaticResource CaptionTextBlockStyle}" />
+        </Grid>
+        <ListView x:Name="AttendanceList" ItemsSource="{x:Bind userAttendance}" Grid.Row="4">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="local:Attendance">
+                    <Grid Padding="8,0,8,0">
+                        <TextBlock Text="{x:Bind DateTime}" />
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="Height" Value="50" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.Resources>
+                <MenuFlyout x:Name="RegistryFlyout">
+                    <MenuFlyoutItem Text="View User Information" />
+                </MenuFlyout>
+            </ListView.Resources>
+        </ListView>
+    </Grid>
+</Page>

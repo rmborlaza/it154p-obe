@@ -1,0 +1,74 @@
+﻿<Page
+    x:Class="DesktopApp.RegistryPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:DesktopApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    NavigationCacheMode="Required">
+
+    <Grid Margin="24,4,24,4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Style="{StaticResource HeaderTextBlockStyle}" Text="Registry" Grid.Row="0" />
+        <CommandBar Grid.Row="1" Background="Transparent" DefaultLabelPosition="Right">
+            <AppBarButton Icon="Add" Tag="Add" Label="Add User" Click="AppBarButton_Click" />
+            <!--<AppBarButton Icon="Find" Tag="Search" Label="Search" Click="AppBarButton_Click" />-->
+            <AppBarButton Icon="Refresh" Tag="Refresh" Label="Refresh" Click="AppBarButton_Click" />
+        </CommandBar>
+        <Grid Grid.Row="2" BorderBrush="{ThemeResource SystemBaseLowColor}" BorderThickness="0,0,0,1.2" Margin="0,8,0,0" Padding="8,0,8,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="ID Number" Style="{StaticResource CaptionTextBlockStyle}" Grid.Column="0" />
+            <TextBlock Text="Name" Style="{StaticResource CaptionTextBlockStyle}" Grid.Column="1" />
+            <TextBlock Text="Username" Style="{StaticResource CaptionTextBlockStyle}" Grid.Column="2" />
+            <TextBlock Text="Account Type" Style="{StaticResource CaptionTextBlockStyle}" Grid.Column="3" />
+            <TextBlock Text="Date of Registration" Style="{StaticResource CaptionTextBlockStyle}" Grid.Column="4" />
+        </Grid>
+        <ListView Grid.Row="3" x:Name="UsersList" RightTapped="UsersList_RightTapped" ItemsSource="{x:Bind users}">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="local:User">
+                    <Grid Margin="8,0,8,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{x:Bind IdNumber}" Grid.Column="0" />
+                        <TextBlock Text="{x:Bind FullName}" Grid.Column="1" />
+                        <TextBlock Text="{x:Bind Username}" Grid.Column="2" />
+                        <TextBlock Text="{x:Bind AccountType}" Grid.Column="3" />
+                        <TextBlock Text="{x:Bind Registration}" Grid.Column="4" />
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Padding" Value="0,0,0,0" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="Height" Value="50" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.Resources>
+                <MenuFlyout x:Name="RegistryFlyout">
+                    <MenuFlyout.Items>
+                        <MenuFlyoutItem Text="View Information" Tag="View" Click="MenuFlyoutItem_Click" />
+                    </MenuFlyout.Items>
+                </MenuFlyout>
+            </ListView.Resources>
+        </ListView>
+    </Grid>
+</Page>

@@ -1,0 +1,21 @@
+﻿<ContentDialog
+    x:Class="DesktopApp.PairCardDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:DesktopApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Pair ID Card"
+    PrimaryButtonText="Confirm"
+    SecondaryButtonText="Cancel"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick"
+    DefaultButton="Primary">
+
+    <StackPanel Spacing="4">
+        <ComboBox x:Name="DeviceList" HorizontalAlignment="Stretch" Header="Device" ItemsSource="{x:Bind devices}" />
+        <Button Content="Star Pairing" HorizontalAlignment="Stretch" Click="Pair_Click" />
+        <TextBlock x:Name="SerialLabel" Text="Click Start Pairing to begin..." />
+    </StackPanel>
+</ContentDialog>
