@@ -23,6 +23,10 @@ namespace DesktopApp
                 string url = "IUserAccount/ListUserAccount.php";
 
                 string response = await Connection.Get(url);
+
+                if (response == null)
+                    return null;
+
                 JsonArray.TryParse(response, out JsonArray array);
                 
                 foreach (var element in array)
@@ -50,6 +54,10 @@ namespace DesktopApp
                 string url = $"IUserAccount/ListUserAccount.php?user_id={idNumber}";
 
                 string response = await Connection.Get(url);
+
+                if (response == null)
+                    return null;
+
                 JsonObject.TryParse(response, out JsonObject entry);
                 
                 int.TryParse(entry["user_id"].GetNumber().ToString(), out int id);
@@ -79,6 +87,7 @@ namespace DesktopApp
                 data.SetNamedValue("account_type", JsonValue.CreateStringValue(user.AccountType.ToString().ToLower()));
                 
                 string response = await Connection.Post(url, data);
+
                 if (response == "OK")
                     return Response.Success;
                 else
@@ -196,8 +205,6 @@ namespace DesktopApp
                 DateTime formatted = new DateTime(year, month, day, hour, minute, second);
                 return formatted;
             }
-
-            
         }
 
         internal static class AttendanceAccess
@@ -209,6 +216,10 @@ namespace DesktopApp
                 string url = $"IAttendanceLog/ListLog.php?user_id={idNumber}";
 
                 string response = await Connection.Get(url);
+
+                if (response == null)
+                    return null;
+
                 JsonArray.TryParse(response, out JsonArray array);
 
                 foreach (var element in array)
@@ -233,6 +244,10 @@ namespace DesktopApp
                 string url = $"IAttendanceLog/ListLog.php";
 
                 string response = await Connection.Get(url);
+
+                if (response == null)
+                    return null;
+
                 JsonArray.TryParse(response, out JsonArray array);
 
                 foreach (var element in array)
@@ -324,7 +339,7 @@ namespace DesktopApp
             }
         }
 
-        internal enum Response
+        public enum Response
         {
             Success,
             Fail

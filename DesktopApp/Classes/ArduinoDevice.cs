@@ -118,9 +118,9 @@ namespace DesktopApp
 
                 Task.Run(ReadDataAsync);
             }
-            catch (ArduinoDeviceIOException e)
+            catch (Exception ex)
             {
-                MessageDialog dialog = new MessageDialog(e.Message, "Error");
+                MessageDialog dialog = new MessageDialog(ex.Message, "Error");
                 await dialog.ShowAsync();
             }
         }

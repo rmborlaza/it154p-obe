@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DesktopApp.ApiAccess;
+using Windows.UI.Popups;
 
 namespace DesktopApp
 {
@@ -49,30 +50,32 @@ namespace DesktopApp
             base.Add(attendance);
         }
 
-        public async void Refresh()
+        public async Task<Response> TryRefreshAsync()
         {
             var attendances = await AttendanceAccess.GetAllAttendance();
             if (attendances == null)
-                return;
+                return Response.Fail;
 
             Clear();
             foreach (Attendance attendance in attendances)
             {
                 Add(attendance);
             }
+            return Response.Success;
         }
 
-        public async void Refresh(int idNumber)
+        public async Task<Response> TryRefreshAsync(int idNumber)
         {
             var attendances = await AttendanceAccess.GetUserAttendance(idNumber);
             if (attendances == null)
-                return;
+                return Response.Fail;
 
             Clear();
             foreach (Attendance attendance in attendances)
             {
                 Add(attendance);
             }
+            return Response.Success;
         }
     }
 }

@@ -13,6 +13,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using DesktopApp.ApiAccess;
+using System.Diagnostics;
+using Windows.UI.Popups;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -32,7 +34,7 @@ namespace DesktopApp
             Refresh();
         }
 
-        private async void AppBarButton_Click(object sender, RoutedEventArgs e)
+        private void AppBarButton_Click(object sender, RoutedEventArgs e)
         {
             var obj = sender as AppBarButton;
             var tag = obj.Tag as string;
@@ -50,45 +52,98 @@ namespace DesktopApp
 
         private async void AddUser()
         {
-            CreateUserDialog createAccountDialog = new CreateUserDialog();
-            await createAccountDialog.ShowAsync();
-        }
-
-        private void UsersList_RightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
-            ListView usersListView = sender as ListView;
-            rightClickedUser = (User)((FrameworkElement)e.OriginalSource).DataContext;
-            if (rightClickedUser == null)
+            try
             {
-                return;
+                CreateUserDialog createAccountDialog = new CreateUserDialog();
+                var result = await createAccountDialog.ShowAsync();
+                if (result == ContentDialogResult.Primary)
+                {
+                    UserAddTip.IsOpen = true;
+                    Refresh();
+                }
             }
-            RegistryFlyout.ShowAt(usersListView, e.GetPosition(usersListView));
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine(ex.Message);
+#endif
+                MessageDialog error = new MessageDialog(ex.Message, "Runtime Error");
+                await error.ShowAsync();
+            }
         }
 
-        private void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+        private async void UsersList_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
-            var menu = (MenuFlyoutItem)e.OriginalSource;
-            var tag = menu.Tag as string;
-
-            switch (tag)
+            try
             {
-                case "View":
-                    Frame.Navigate(typeof(UserAccountPage), rightClickedUser);
-                    break;
+                ListView usersListView = sender as ListView;
+                rightClickedUser = (User)((FrameworkElement)e.OriginalSource).DataContext;
+                if (rightClickedUser == null)
+                {
+                    return;
+                }
+                RegistryFlyout.ShowAt(usersListView, e.GetPosition(usersListView));
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine(ex.Message);
+#endif
+                MessageDialog error = new MessageDialog(ex.Message, "Runtime Error");
+                await error.ShowAsync();
+            }
+        }
+
+        private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var menu = (MenuFlyoutItem)e.OriginalSource;
+                var tag = menu.Tag as string;
+
+                switch (tag)
+                {
+                    case "View":
+                        Frame.Navigate(typeof(UserAccountPage), rightClickedUser);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine(ex.Message);
+#endif
+                MessageDialog error = new MessageDialog(ex.Message, "Runtime Error");
+                await error.ShowAsync();
             }
         }
 
         private async void Refresh()
         {
-            var userList = await UserAccess.GetAllUsers();
-
-            if (userList == null)
-                return;
-
-            users.Clear();
-            foreach (User user in userList)
+            try
             {
-                users.Add(user);
+                var userList = await UserAccess.GetAllUsers();
+
+                if (userList == null)
+                {
+                    ErrorDialog error = new ErrorDialog("Failed to refresh data.");
+                    await error.ShowAsync();
+                    return;
+                }
+
+                users.Clear();
+                foreach (User user in userList)
+                {
+                    users.Add(user);
+                }
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine(ex.Message);
+#endif
+                MessageDialog error = new MessageDialog(ex.Message, "Runtime Error");
+                await error.ShowAsync();
             }
         }
     }

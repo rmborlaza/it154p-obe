@@ -40,7 +40,7 @@
         </CommandBar>
 
         <StackPanel Grid.Row="2" Spacing="4" Margin="0,0,0,16">
-            <TextBlock x:Name="FullnameText" Style="{StaticResource TitleTextBlockStyle}" Text="Fname Lname" />
+            <TextBlock x:Name="FullnameText" Style="{StaticResource TitleTextBlockStyle}" Text="Full Name" />
             <TextBlock x:Name="UsernameText" Text="Username: " />
             <TextBlock x:Name="IdNumberText" Text="ID Number: " />
             <TextBlock x:Name="AccountTypeText" Text="Account Type:  " />

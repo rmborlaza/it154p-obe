@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 using DesktopApp.ApiAccess;
+using System.Diagnostics;
 
 namespace DesktopApp
 {
@@ -47,58 +48,90 @@ namespace DesktopApp
             AccountType = accountType;
         }
 
-        public async Task Load()
+        public async Task<Response> Load()
         {
-            User user = await UserAccess.GetUser(IdNumber);
-            FirstName = user.FirstName;
-            LastName = user.LastName;
-            Username = user.Username;
-            Registration = user.Registration;
-            AccountType = user.AccountType;
-            user = null;
+            try
+            {
+                User user = await UserAccess.GetUser(IdNumber);
+                if (user == null)
+                {
+                    return Response.Fail;
+                }
+                else
+                {
+                    FirstName = user.FirstName;
+                    LastName = user.LastName;
+                    Username = user.Username;
+                    Registration = user.Registration;
+                    AccountType = user.AccountType;
+                    user = null;
+                    return Response.Success;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return Response.Fail;
+            }
         }
 
-        public async Task Load(int idNumber)
+        public async Task<Response> Load(int idNumber)
         {
-            User user = await UserAccess.GetUser(idNumber);
-            IdNumber = user.IdNumber;
-            FirstName = user.FirstName;
-            LastName = user.LastName;
-            Username = user.Username;
-            Registration = user.Registration;
-            AccountType = user.AccountType;
-            user = null;
+            try
+            {
+                User user = await UserAccess.GetUser(idNumber);
+                IdNumber = user.IdNumber;
+                FirstName = user.FirstName;
+                LastName = user.LastName;
+                Username = user.Username;
+                Registration = user.Registration;
+                AccountType = user.AccountType;
+                user = null;
+                return Response.Success;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return Response.Fail;
+            }
         }
 
-        public async void Update(string firstName, string  lastName, string username, AccountType accountType)
+        public async Task<Response> Update(string firstName, string lastName, string username, AccountType accountType)
         {
             User user = new User(IdNumber, firstName, lastName, username, Registration, accountType);
 
             var response = await UserAccess.UpdateUser(user);
             if (response == Response.Fail)
             {
-                ErrorDialog error = new ErrorDialog("Failed to update user information");
-                await error.ShowAsync();
+                return Response.Fail;
             }
             else
             {
-                FirstName = user.FirstName;
-                LastName = user.LastName;
-                Username = user.Username;
+                FirstName = firstName;
+                LastName = lastName;
+                Username = username;
                 AccountType = accountType;
+                return Response.Success;
             }
         }
 
-        public async void UpdatePassword(string oldPassword, string newPassword)
+        public async Task<Response> UpdatePassword(string newPassword, string oldPassword)
         {
             var response = await UserAccess.UpdatePassword(this, oldPassword, newPassword);
+            return response;
+        }
+        public async Task<Response> UpdatePassword(string newPassword)
+        {
+            var response = await UserAccess.UpdatePassword(this, newPassword);
+            return response;
         }
 
-        public async void PairCard(string serialNo)
+        public async Task<Response> PairCard(string serialNo)
         {
             Card newCard = new Card(serialNo);
             Card = newCard;
             var response = await UserAccess.PairCard(this, Card);
+            return response;
         }
     }
 

@@ -1,11 +1,13 @@
 ﻿using DesktopApp.ApiAccess;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -45,34 +47,71 @@ namespace DesktopApp
                     break;
             }
         }
-        private void Refresh()
+        private async void Refresh()
         {
-            attendanceList.Refresh();
+            try
+            {
+                var result = await attendanceList.TryRefreshAsync();
+                if (result == Response.Fail)
+                {
+                    ErrorDialog error = new ErrorDialog("Failed to refresh data.");
+                    await error.ShowAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine(ex.Message);
+#endif
+                MessageDialog error = new MessageDialog(ex.Message, "Runtime Error");
+                await error.ShowAsync();
+            }
         }
 
-        private void AttendanceList_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        private async void AttendanceList_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
-            ListView attendanceListView = sender as ListView;
-            var data = ((FrameworkElement)e.OriginalSource).DataContext;
-            if (data == null)
+            try
             {
-                return;
+                ListView attendanceListView = sender as ListView;
+                var data = ((FrameworkElement)e.OriginalSource).DataContext;
+                if (data == null)
+                {
+                    return;
+                }
+                rightClickedAttendance = (Attendance)data;
+                RegistryFlyout.ShowAt(attendanceListView, e.GetPosition(attendanceListView));
             }
-            rightClickedAttendance = (Attendance)data;
-            RegistryFlyout.ShowAt(attendanceListView, e.GetPosition(attendanceListView));
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine(ex.Message);
+#endif
+                MessageDialog error = new MessageDialog(ex.Message, "Runtime Error");
+                await error.ShowAsync();
+            }
         }
 
         private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
         {
-            var menu = (MenuFlyoutItem)e.OriginalSource;
-            var tag = menu.Tag as string;
-
-            switch (tag)
+            try
             {
-                case "View":
-                    User user = await UserAccess.GetUser(rightClickedAttendance.IdNumber);
-                    Frame.Navigate(typeof(UserAccountPage), user);
-                    break;
+                var menu = (MenuFlyoutItem)e.OriginalSource;
+                var tag = menu.Tag as string;
+
+                switch (tag)
+                {
+                    case "View":
+                        Frame.Navigate(typeof(UserAccountPage), rightClickedAttendance.IdNumber);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine(ex.Message);
+#endif
+                MessageDialog error = new MessageDialog(ex.Message, "Runtime Error");
+                await error.ShowAsync();
             }
         }
     }
