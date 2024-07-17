@@ -23,7 +23,7 @@ namespace DesktopApp
     /// </summary>
     public sealed partial class AppPage : Page
     {
-        public static User myAccount;
+        public static User MyAccount { get; private set; }
         public AppPage()
         {
             this.InitializeComponent();
@@ -37,9 +37,6 @@ namespace DesktopApp
 
             switch (tag)
             {
-                case "Home":
-                    ContentFrame.Navigate(typeof(HomePage));
-                    break;
                 case "Attendance":
                     ContentFrame.Navigate(typeof(AttendancePage));
                     break;
@@ -47,7 +44,7 @@ namespace DesktopApp
                     ContentFrame.Navigate(typeof(RegistryPage));
                     break;
                 case "MyAccount":
-                    ContentFrame.Navigate(typeof(UserAccountPage), myAccount);
+                    ContentFrame.Navigate(typeof(UserAccountPage), MyAccount);
                     break;
                 case "Logout":
                     Frame.GoBack();
@@ -58,7 +55,7 @@ namespace DesktopApp
         {
             if (e.Parameter is User)
             {
-                myAccount = (User)e.Parameter;
+                MyAccount = (User)e.Parameter;
             }
             base.OnNavigatedTo(e);
         }

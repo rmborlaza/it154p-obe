@@ -2,11 +2,13 @@
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -30,6 +32,7 @@ namespace DesktopApp
         public UserAccountPage()
         {
             this.InitializeComponent();
+            userAttendance = new AttendanceList();
         }
 
         private void AppBarButton_Click(object sender, RoutedEventArgs e)
@@ -56,57 +59,67 @@ namespace DesktopApp
 
         private async void UpdateCard()
         {
-            PairCardDialog dialog = new PairCardDialog();
-            var result = await dialog.ShowAsync();
-
-            if (result == ContentDialogResult.Primary)
+            try
             {
-                string serial = dialog.GetCardSerial();
-                Card newCard = new Card(serial);
-                var response = await UserAccess.PairCard(user, newCard);
-                if (response == Response.Fail)
-                {
-                    ErrorDialog error = new ErrorDialog("Failed to pair card.");
-                    await error.ShowAsync();
-                }
-                else
+                PairCardDialog dialog = new PairCardDialog(user);
+                var result = await dialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary)
                 {
                     PairedTip.IsOpen = true;
                 }
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine(ex.Message);
+#endif
+                MessageDialog error = new MessageDialog(ex.Message, "Runtime Error");
+                await error.ShowAsync();
             }
         }
 
         private async void UpdateInfo()
         {
-            UpdateUserDialog dialog = new UpdateUserDialog(user);
-            var result = await dialog.ShowAsync();
+            try
+            {
+                UpdateUserDialog dialog = new UpdateUserDialog(user);
+                var result = await dialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine(ex.Message);
+#endif
+                MessageDialog error = new MessageDialog(ex.Message, "Runtime Error");
+                await error.ShowAsync();
+            }
         }
 
         private async void UpdatePassword()
         {
-            bool isCurrentUser = false;
-            if (AppPage.myAccount.IdNumber == user.IdNumber)
+            try
             {
-                isCurrentUser = true;
-            }
-            ResetPasswordDialog dialog = new ResetPasswordDialog(isCurrentUser);
-
-            var result = await dialog.ShowAsync();
-
-            if (result == ContentDialogResult.Primary)
-            {
-                string newPass = dialog.NewPassword;
-
-                var response = await UserAccess.UpdatePassword(user, newPass);
-                if (response == Response.Fail)
+                bool isCurrentUser = false;
+                if (AppPage.MyAccount.IdNumber == user.IdNumber)
                 {
-                    ErrorDialog error = new ErrorDialog("Failed updating password.");
-                    await error.ShowAsync();
+                    isCurrentUser = true;
                 }
-                else
+                ResetPasswordDialog dialog = new ResetPasswordDialog(user, isCurrentUser);
+                var result = await dialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary)
                 {
                     PassChangedTip.IsOpen = true;
                 }
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine(ex.Message);
+#endif
+                MessageDialog error = new MessageDialog(ex.Message, "Runtime Error");
+                await error.ShowAsync();
             }
         }
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -115,36 +128,70 @@ namespace DesktopApp
             base.OnNavigatedTo(e);
         }
 
-        private void Refresh()
+        private async void Refresh()
         {
-            userAttendance.Refresh(user.IdNumber);
+            try
+            {
+                var result = await userAttendance.TryRefreshAsync(user.IdNumber);
+                if (result == Response.Fail)
+                {
+                    ErrorDialog error = new ErrorDialog("Failed to refresh data.");
+                    await error.ShowAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+#if DEBUG
+                Debug.WriteLine(ex.Message);
+#endif
+                MessageDialog error = new MessageDialog(ex.Message, "Runtime Error");
+                await error.ShowAsync();
+            }
         }
 
         private async void Load(object parameter)
         {
-            if (parameter is User)
+            try
             {
-                user = parameter as User;
+                Response userResponse = Response.Success;
+                if (parameter is User)
+                {
+                    user = parameter as User;
+                }
+                else if (parameter is int)
+                {
+                    user = new User((int)parameter);
+                    userResponse = await user.Load();
+                    if (userResponse == Response.Fail)
+                    {
+                        ErrorDialog error = new ErrorDialog("Failed loading user data.");
+                        await error.ShowAsync();
+                    }
+                }
+                if (userResponse == Response.Success)
+                {
+                    FullnameText.Text = user.FullName;
+                    UsernameText.Text = $"Username: {user.Username}";
+                    IdNumberText.Text = $"ID Number: {user.IdNumber.ToString()}";
+                    AccountTypeText.Text = $"Account Type: {user.AccountType}";
 
-                FullnameText.Text = user.FullName;
-                UsernameText.Text = $"Username: {user.Username}";
-                IdNumberText.Text = $"ID Number: {user.IdNumber.ToString()}";
-                AccountTypeText.Text = $"Account Type: {user.AccountType}";
+                    userAttendance = new AttendanceList(user.IdNumber);
+                    var attendanceResponse = await userAttendance.TryRefreshAsync(user.IdNumber);
 
-                userAttendance = new AttendanceList(user.IdNumber);
-                userAttendance.Refresh(user.IdNumber);
+                    if (attendanceResponse == Response.Fail)
+                    {
+                        ErrorDialog error = new ErrorDialog("Failed loading user attendance.");
+                        await error.ShowAsync();
+                    }
+                }
             }
-            else if (parameter is int)
+            catch (Exception ex)
             {
-                user = new User((int)parameter);
-                await user.Load();
-                FullnameText.Text = user.FullName;
-                UsernameText.Text = $"Username: {user.Username}";
-                IdNumberText.Text = $"ID Number: {user.IdNumber.ToString()}";
-                AccountTypeText.Text = $"Account Type: {user.AccountType}";
-
-                userAttendance = new AttendanceList(user.IdNumber);
-                userAttendance.Refresh(user.IdNumber);
+#if DEBUG
+                Debug.WriteLine(ex.Message);
+#endif
+                MessageDialog error = new MessageDialog(ex.Message, "Runtime Error");
+                await error.ShowAsync();
             }
         }
     }

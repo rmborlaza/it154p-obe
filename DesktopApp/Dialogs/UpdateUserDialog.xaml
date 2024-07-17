@@ -10,7 +10,6 @@
     PrimaryButtonText="Update"
     SecondaryButtonText="Cancel"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
-    SecondaryButtonClick="ContentDialog_SecondaryButtonClick"
     DefaultButton="Primary">
     <StackPanel Spacing="4">
         <Grid>
