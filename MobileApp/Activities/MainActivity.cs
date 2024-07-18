@@ -27,7 +27,7 @@ namespace MobileApp
         // Test function
         private async void TestButton_Click(object sender, System.EventArgs e)
         {
-            var result = await UserAccess.Authenticate("ridon", "borlaza");
+            var result = await AttendanceAccess.GetUserAttendance(789);
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)

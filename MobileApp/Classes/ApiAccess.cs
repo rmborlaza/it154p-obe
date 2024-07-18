@@ -1,4 +1,5 @@
-﻿using Android.App;
+﻿using Android.Accounts;
+using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Runtime;
@@ -7,6 +8,7 @@ using Android.Widget;
 using Org.Apache.Http.Client.Params;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -48,12 +50,26 @@ namespace MobileApp.ApiAccess
                 type = AccountType.User;
 
             User user = new User(userId, firstName, lastName, uname, registration, type);
-
+            doc.Dispose();
             return user;
         }
         public async static Task<Response> UpdatePassword(User user, string oldPassword, string newPassword)
         {
-            return Response.Fail;
+            string url = "IUserAccount/UpdatePassword.php";
+
+            Dictionary<string, string> postData = new Dictionary<string, string>
+            {
+                { "user_id", user.IdNumber.ToString() },
+                { "current_password", oldPassword },
+                { "new_password", newPassword }
+            };
+
+            string response = await Connection.Post(url, postData);
+
+            if (response == "OK")
+                return Response.Success;
+            else
+                return Response.Fail;
         }
         public async static Task<User> Authenticate(string username, string password)
         {
@@ -120,7 +136,40 @@ namespace MobileApp.ApiAccess
     {
         public async static Task<List<Attendance>> GetUserAttendance(int idNumber)
         {
-            return null;
+            List<Attendance> attendances = new List<Attendance>();
+
+            string url = $"IAttendanceLog/ListLog.php?user_id={idNumber}";
+
+            try
+            {
+                string result = await Connection.Get(url);
+
+                if (result == null)
+                    return null;
+
+                using var doc = JsonDocument.Parse(result);
+                JsonElement entries = doc.RootElement;
+                var entriesArray = entries.EnumerateArray();
+
+                foreach (JsonElement entry in entriesArray)
+                {
+                    string dateTimeStr = entry.GetProperty("date_time").GetString();
+                    int id = entry.GetProperty("user_id").GetInt32();
+                    string firstName = entry.GetProperty("first_name").GetString();
+                    string lastName = entry.GetProperty("last_name").GetString();
+
+                    Attendance attendance = new Attendance(id, firstName, lastName, ConvertToDateTime(dateTimeStr));
+                    attendances.Add(attendance);
+                }
+                doc.Dispose();
+                return attendances;
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message;
+                System.Diagnostics.Debug.WriteLine(message);
+                return null;
+            }
         }
         private static DateTime ConvertToDateTime(string dateTimeStr)
         {
@@ -146,6 +195,7 @@ namespace MobileApp.ApiAccess
 
     internal static class Connection
     {
+        // Change host to your PC's IP address.
         static string host = "192.168.2.50/attendance";
         internal async static Task<string> Get(string url)
         {
