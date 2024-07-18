@@ -208,15 +208,16 @@ namespace MobileApp.ApiAccess
                 using (httpClient)
                 {
                     Uri uri = new Uri($"http://{host}/{url}");
-                    httpClient.Timeout = new TimeSpan(0, 0, 30);
+                    httpClient.Timeout = new TimeSpan(0, 0, 10);
                     var httpResponse = await httpClient.GetAsync(uri);
                     httpResponse.EnsureSuccessStatusCode();
                     result = await httpResponse.Content.ReadAsStringAsync();
                 }
                 return result;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
                 return null;
             }
             finally
@@ -238,9 +239,10 @@ namespace MobileApp.ApiAccess
                 using (httpClient)
                 {
                     Uri uri = new Uri($"http://{host}/{url}");
-                    httpClient.Timeout = new TimeSpan(0, 0, 30);
+                    httpClient.Timeout = new TimeSpan(0, 0, 10);
                     var content = new FormUrlEncodedContent(postData);
                     var httpResponse = await httpClient.PostAsync(uri, content);
+                    httpResponse.EnsureSuccessStatusCode();
                     result = await httpResponse.Content.ReadAsStringAsync();
                 }
                 return result;
