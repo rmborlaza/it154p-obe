@@ -27,9 +27,6 @@ namespace MobileApp
 
             LoginBtn = FindViewById<Button>(Resource.Id.LoginBtn);
             LoginBtn.Click += LoginBtn_Click;
-            // Test Button
-            TestButton = FindViewById<Button>(Resource.Id.TestBtn);
-            TestButton.Click += TestButton_Click;
         }
 
         private async void LoginBtn_Click(object sender, System.EventArgs e)
@@ -58,19 +55,11 @@ namespace MobileApp
             }
         }
 
-        // Test function
-        private async void TestButton_Click(object sender, System.EventArgs e)
-        {
-            var result = await AttendanceAccess.GetUserAttendance(789);
-        }
-
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-
-
     }
 }

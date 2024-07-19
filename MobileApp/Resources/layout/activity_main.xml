@@ -26,6 +26,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/LoginUsernameBox"
         android:layout_gravity="center" />
+
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -35,6 +36,7 @@
         android:hint="Password"
         android:inputType="textPassword"
         android:id="@+id/LoginPasswordBox" />
+
     <Button
         android:text="Login"
         android:layout_width="match_parent"
@@ -43,12 +45,4 @@
         android:id="@+id/LoginBtn"
         android:clickable="true" />
 
-    <!-- For Testing Purpose. Do not include in final build. -->
-    <Button
-        android:text="Test Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/TestBtn"
-        android:clickable="true" />
 </LinearLayout>
