@@ -196,7 +196,8 @@ namespace MobileApp.ApiAccess
     internal static class Connection
     {
         // Change host to your PC's IP address.
-        static string host = "192.168.2.50/attendance";
+        static string host = "mcl-ccis.site";
+
         internal async static Task<string> Get(string url)
         {
             string result = null;
@@ -207,7 +208,7 @@ namespace MobileApp.ApiAccess
             {
                 using (httpClient)
                 {
-                    Uri uri = new Uri($"http://{host}/{url}");
+                    Uri uri = new Uri($"https://{host}/{url}");
                     httpClient.Timeout = new TimeSpan(0, 0, 10);
                     var httpResponse = await httpClient.GetAsync(uri);
                     httpResponse.EnsureSuccessStatusCode();
@@ -238,7 +239,7 @@ namespace MobileApp.ApiAccess
             {
                 using (httpClient)
                 {
-                    Uri uri = new Uri($"http://{host}/{url}");
+                    Uri uri = new Uri($"https://{host}/{url}");
                     httpClient.Timeout = new TimeSpan(0, 0, 10);
                     var content = new FormUrlEncodedContent(postData);
                     var httpResponse = await httpClient.PostAsync(uri, content);
