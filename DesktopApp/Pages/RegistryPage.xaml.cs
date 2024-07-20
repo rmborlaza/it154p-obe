@@ -136,6 +136,7 @@ namespace DesktopApp
                 {
                     users.Add(user);
                 }
+                Bindings.Update();
             }
             catch (Exception ex)
             {

@@ -58,8 +58,10 @@ namespace DesktopApp
                 if (response == null)
                     return null;
 
-                JsonObject.TryParse(response, out JsonObject entry);
-                
+                bool parseSuccess = JsonObject.TryParse(response, out JsonObject entry);
+                if (!parseSuccess)
+                    return null;
+
                 int.TryParse(entry["user_id"].GetNumber().ToString(), out int id);
                 string firstName = entry["first_name"].GetString();
                 string lastName = entry["last_name"].GetString();
@@ -78,15 +80,15 @@ namespace DesktopApp
             public async static Task<Response> AddUser(User user, string password)
             {
                 string url = "IUserAccount/CreateUserAccount.php";
-
-                JsonObject data = new JsonObject();
-                data.SetNamedValue("username", JsonValue.CreateStringValue(user.Username));
-                data.SetNamedValue("password", JsonValue.CreateStringValue(password));
-                data.SetNamedValue("first_name", JsonValue.CreateStringValue(user.FirstName));
-                data.SetNamedValue("last_name", JsonValue.CreateStringValue(user.LastName));
-                data.SetNamedValue("account_type", JsonValue.CreateStringValue(user.AccountType.ToString().ToLower()));
                 
-                string response = await Connection.Post(url, data);
+                HttpForm form = new HttpForm();
+                form.Add("username", user.Username);
+                form.Add("password", password);
+                form.Add("first_name", user.FirstName);
+                form.Add("last_name", user.LastName);
+                form.Add("account_type", user.AccountType.ToString().ToLower());
+
+                string response = await Connection.Post(url, form);
 
                 if (response == "OK")
                     return Response.Success;
@@ -97,13 +99,15 @@ namespace DesktopApp
             public async static Task<Response> UpdateUser(User user)
             {
                 string url = "IUserAccount/UpdateUserAccount.php";
-                JsonObject data = new JsonObject();
-                data.SetNamedValue("user_id", JsonValue.CreateNumberValue(user.IdNumber));
-                data.SetNamedValue("username", JsonValue.CreateStringValue(user.Username));
-                data.SetNamedValue("first_name", JsonValue.CreateStringValue(user.FirstName));
-                data.SetNamedValue("last_name", JsonValue.CreateStringValue(user.LastName));
-                data.SetNamedValue("account_type", JsonValue.CreateStringValue(user.AccountType.ToString().ToLower()));
-                string response = await Connection.Post(url, data);
+
+                HttpForm form = new HttpForm();
+                form.Add("user_id", user.IdNumber.ToString());
+                form.Add("username", user.Username);
+                form.Add("first_name", user.FirstName);
+                form.Add("last_name", user.LastName);
+                form.Add("account_type", user.AccountType.ToString().ToLower());
+
+                string response = await Connection.Post(url, form);
 
                 if (response == "OK")
                     return Response.Success;
@@ -114,10 +118,12 @@ namespace DesktopApp
             public async static Task<Response> UpdatePassword(User user, string newPassword)
             {
                 string url = "IUserAccount/UpdatePassword.php";
-                JsonObject data = new JsonObject();
-                data.SetNamedValue("user_id", JsonValue.CreateNumberValue(user.IdNumber));
-                data.SetNamedValue("new_password", JsonValue.CreateStringValue(newPassword));
-                string response = await Connection.Post(url, data);
+
+                HttpForm form = new HttpForm();
+                form.Add("user_id", user.IdNumber.ToString());
+                form.Add("new_password", newPassword);
+
+                string response = await Connection.Post(url, form);
 
                 if (response == "OK")
                     return Response.Success;
@@ -128,11 +134,13 @@ namespace DesktopApp
             public async static Task<Response> UpdatePassword(User user, string oldPassword, string newPassword)
             {
                 string url = "IUserAccount/UpdatePassword.php";
-                JsonObject data = new JsonObject();
-                data.SetNamedValue("user_id", JsonValue.CreateNumberValue(user.IdNumber));
-                data.SetNamedValue("current_password", JsonValue.CreateStringValue(oldPassword));
-                data.SetNamedValue("new_password", JsonValue.CreateStringValue(newPassword));
-                string response = await Connection.Post(url, data);
+
+                HttpForm form = new HttpForm();
+                form.Add("user_id", user.IdNumber.ToString());
+                form.Add("current_password", oldPassword);
+                form.Add("new_password", newPassword);
+
+                string response = await Connection.Post(url, form);
 
                 if (response == "OK")
                     return Response.Success;
@@ -143,10 +151,12 @@ namespace DesktopApp
             public async static Task<Response> PairCard(User user, Card card)
             {
                 string url = "IUserAccount/PairCard.php";
-                JsonObject data = new JsonObject();
-                data.SetNamedValue("user_id", JsonValue.CreateNumberValue(user.IdNumber));
-                data.SetNamedValue("serial_no", JsonValue.CreateStringValue(card.SerialNo));
-                string response = await Connection.Post(url, data);
+
+                HttpForm form = new HttpForm();
+                form.Add("user_id", user.IdNumber.ToString());
+                form.Add("serial_no", card.SerialNo);
+
+                string response = await Connection.Post(url, form);
 
                 if (response == "OK")
                     return Response.Success;
@@ -158,11 +168,11 @@ namespace DesktopApp
             {
                 string url = "IUserAccount/AuthenticateUserAccount.php";
 
-                JsonObject data = new JsonObject();
-                data.SetNamedValue("username", JsonValue.CreateStringValue(username));
-                data.SetNamedValue("password", JsonValue.CreateStringValue(password));
+                HttpForm form = new HttpForm();
+                form.Add("username", username);
+                form.Add("password", password);
                 
-                string response = await Connection.Post(url, data);
+                string response = await Connection.Post(url, form);
 
                 if (response == "ERROR")
                     return null;
@@ -220,7 +230,9 @@ namespace DesktopApp
                 if (response == null)
                     return null;
 
-                JsonArray.TryParse(response, out JsonArray array);
+                bool parseSucess = JsonArray.TryParse(response, out JsonArray array);
+                if (!parseSucess)
+                    return null;
 
                 foreach (var element in array)
                 {
@@ -289,7 +301,8 @@ namespace DesktopApp
 
         internal static class Connection
         {
-            static string host = "192.168.2.50/attendance";
+            static string host = "mcl-ccis.site";
+
             internal async static Task<string> Get(string url)
             {
                 HttpClient httpClient = new HttpClient();
@@ -312,10 +325,12 @@ namespace DesktopApp
                 }
                 return responseBody;
             }
+            [Obsolete]
             internal async static Task<string> Post(string url, JsonObject postData)
             {
                 return await Connection.Post(url, new HttpStringContent(postData.Stringify(), uwp.UnicodeEncoding.Utf8, "application/json"));
             }
+            [Obsolete]
             internal async static Task<string> Post(string url, HttpStringContent postData)
             {
                 HttpClient httpClient = new HttpClient();
@@ -336,6 +351,47 @@ namespace DesktopApp
                     httpClient.Dispose();
                 }
                 return httpResponse;
+            }
+            internal async static Task<string> Post(string url, HttpForm postData)
+            {
+                string httpResponse = null;
+                HttpClient httpClient = new HttpClient();
+
+                try
+                {
+                    Uri uri = new Uri($"http://{host}/{url}");
+                    HttpFormUrlEncodedContent form = new HttpFormUrlEncodedContent(postData);
+
+                    HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(uri, form);
+                    httpResponse = await httpResponseMessage.Content.ReadAsStringAsync();
+                    httpResponseMessage.EnsureSuccessStatusCode();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                    return null;
+                }
+                finally
+                {
+                    httpClient.Dispose();
+                }
+
+                return httpResponse;
+            }
+        }
+        internal class HttpForm : List<KeyValuePair<string, string>>
+        {
+            public HttpForm()
+            {
+
+            }
+            public void Add(string key, string value)
+            {
+                base.Add(new KeyValuePair<string, string>(key, value));
+            }
+            private new void Add(KeyValuePair<string, string> pair)
+            {
+                base.Add(pair);
             }
         }
 

@@ -85,6 +85,10 @@ namespace DesktopApp
             {
                 UpdateUserDialog dialog = new UpdateUserDialog(user);
                 var result = await dialog.ShowAsync();
+                if (result == ContentDialogResult.Primary)
+                {
+                    Refresh();
+                }
             }
             catch (Exception ex)
             {
@@ -132,12 +136,31 @@ namespace DesktopApp
         {
             try
             {
+                Response userResponse = Response.Success;
+                userResponse = await user.Load();
+                if (userResponse == Response.Fail)
+                {
+                    ErrorDialog error = new ErrorDialog("Failed loading user data.");
+                    await error.ShowAsync();
+                }
+
+                if (userResponse == Response.Success)
+                {
+                    FullnameText.Text = user.FullName;
+                    UsernameText.Text = $"Username: {user.Username}";
+                    IdNumberText.Text = $"ID Number: {user.IdNumber.ToString()}";
+                    AccountTypeText.Text = $"Account Type: {user.AccountType}";
+
+                    userAttendance = new AttendanceList(user.IdNumber);
+                }
+                
                 var result = await userAttendance.TryRefreshAsync(user.IdNumber);
                 if (result == Response.Fail)
                 {
                     ErrorDialog error = new ErrorDialog("Failed to refresh data.");
                     await error.ShowAsync();
                 }
+                Bindings.Update();
             }
             catch (Exception ex)
             {
@@ -153,7 +176,6 @@ namespace DesktopApp
         {
             try
             {
-                Response userResponse = Response.Success;
                 if (parameter is User)
                 {
                     user = parameter as User;
@@ -161,29 +183,8 @@ namespace DesktopApp
                 else if (parameter is int)
                 {
                     user = new User((int)parameter);
-                    userResponse = await user.Load();
-                    if (userResponse == Response.Fail)
-                    {
-                        ErrorDialog error = new ErrorDialog("Failed loading user data.");
-                        await error.ShowAsync();
-                    }
                 }
-                if (userResponse == Response.Success)
-                {
-                    FullnameText.Text = user.FullName;
-                    UsernameText.Text = $"Username: {user.Username}";
-                    IdNumberText.Text = $"ID Number: {user.IdNumber.ToString()}";
-                    AccountTypeText.Text = $"Account Type: {user.AccountType}";
-
-                    userAttendance = new AttendanceList(user.IdNumber);
-                    var attendanceResponse = await userAttendance.TryRefreshAsync(user.IdNumber);
-
-                    if (attendanceResponse == Response.Fail)
-                    {
-                        ErrorDialog error = new ErrorDialog("Failed loading user attendance.");
-                        await error.ShowAsync();
-                    }
-                }
+                Refresh();
             }
             catch (Exception ex)
             {
