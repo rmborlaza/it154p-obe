@@ -301,7 +301,8 @@ namespace DesktopApp
 
         internal static class Connection
         {
-            static string host = "192.168.2.50/attendance";
+            static string host = "mcl-ccis.site";
+
             internal async static Task<string> Get(string url)
             {
                 HttpClient httpClient = new HttpClient();

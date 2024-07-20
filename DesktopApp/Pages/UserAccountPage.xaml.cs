@@ -160,6 +160,7 @@ namespace DesktopApp
                     ErrorDialog error = new ErrorDialog("Failed to refresh data.");
                     await error.ShowAsync();
                 }
+                Bindings.Update();
             }
             catch (Exception ex)
             {
