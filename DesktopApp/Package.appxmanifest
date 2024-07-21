@@ -9,7 +9,7 @@
   <Identity
     Name="9bf35a5f-e3ca-41b7-a03c-492d606c9648"
     Publisher="CN=Ridon"
-    Version="1.0.0.0" />
+    Version="1.0.1.0" />
 
   <mp:PhoneIdentity PhoneProductId="9bf35a5f-e3ca-41b7-a03c-492d606c9648" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
