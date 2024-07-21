@@ -58,7 +58,7 @@ namespace DesktopApp
 
                     if (isCurrentUser)
                     {
-                        response = await user.UpdatePassword(oldPassword, newPassword);
+                        response = await user.UpdatePassword(newPassword, oldPassword);
                     }
                     else
                     {
