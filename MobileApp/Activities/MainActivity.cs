@@ -5,6 +5,7 @@ using Android.Runtime;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using MobileApp.ApiAccess;
+using System;
 
 namespace MobileApp
 {
@@ -33,6 +34,11 @@ namespace MobileApp
             string username = Username.Text;
             string password = Password.Text;
 
+            if (username == string.Empty || password == string.Empty)
+            {
+                Toast.MakeText(this, "Username and password cannot be blank", ToastLength.Short).Show();
+            }
+
             try
             {
                 var user = await UserAccess.Authenticate(username, password);
@@ -50,9 +56,10 @@ namespace MobileApp
                     Toast.MakeText(this, "Invalid username or password", ToastLength.Short).Show();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Toast.MakeText(this, "Runtime error", ToastLength.Short).Show();
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                Toast.MakeText(this, ex.Message, ToastLength.Long).Show();
             }
         }
 

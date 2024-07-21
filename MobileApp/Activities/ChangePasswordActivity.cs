@@ -66,20 +66,25 @@ namespace MobileApp
                 Toast.MakeText(this, "New passwords do not match.", ToastLength.Short).Show();
                 return;
             }
-
-            User user = new User(int.Parse(idNumber));
-            await user.Load();
-
-            var response = await UserAccess.UpdatePassword(user, currentPassword, newPassword);
-
-            if (response == Response.Success)
+            try
             {
-                Toast.MakeText(this, "Password changed successfully.", ToastLength.Short).Show();
-                Finish();
+                User user = new User(int.Parse(idNumber));
+                var response = await UserAccess.UpdatePassword(user, currentPassword, newPassword);
+
+                if (response == Response.Success)
+                {
+                    Toast.MakeText(this, "Password changed successfully.", ToastLength.Short).Show();
+                    Finish();
+                }
+                else
+                {
+                    Toast.MakeText(this, "Failed to change password. Please try again.", ToastLength.Short).Show();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Toast.MakeText(this, "Failed to change password. Please try again.", ToastLength.Short).Show();
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                Toast.MakeText(this, ex.Message, ToastLength.Long).Show();
             }
         }
 

@@ -5,7 +5,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidX.RecyclerView.Widget;
-using Java.Lang;
+//using Java.Lang;
 using MobileApp.ApiAccess;
 using System;
 using System.Collections.Generic;
@@ -72,16 +72,24 @@ namespace MobileApp
 
         private async void Refresh()
         {
-            var response = await attendance.TryRefreshAsync();
+            try
+            {
+                var response = await attendance.TryRefreshAsync();
 
-            if (response == Response.Success)
-            {
-                adapter = new AttendanceViewListAdapter(attendance);
-                AttendanceRecyclerView.SetAdapter(adapter);
+                if (response == Response.Success)
+                {
+                    adapter = new AttendanceViewListAdapter(attendance);
+                    AttendanceRecyclerView.SetAdapter(adapter);
+                }
+                else
+                {
+                    Toast.MakeText(this, "Failed loading user attendance", ToastLength.Long).Show();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Toast.MakeText(this, "Failed loading user attendance", ToastLength.Long).Show();
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+                Toast.MakeText(this, ex.Message, ToastLength.Long).Show();
             }
         }
     }

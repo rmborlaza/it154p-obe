@@ -140,36 +140,27 @@ namespace MobileApp.ApiAccess
 
             string url = $"IAttendanceLog/ListLog.php?user_id={idNumber}";
 
-            try
-            {
-                string result = await Connection.Get(url);
+            string result = await Connection.Get(url);
 
-                if (result == null)
-                    return null;
-
-                using var doc = JsonDocument.Parse(result);
-                JsonElement entries = doc.RootElement;
-                var entriesArray = entries.EnumerateArray();
-
-                foreach (JsonElement entry in entriesArray)
-                {
-                    string dateTimeStr = entry.GetProperty("date_time").GetString();
-                    int id = entry.GetProperty("user_id").GetInt32();
-                    string firstName = entry.GetProperty("first_name").GetString();
-                    string lastName = entry.GetProperty("last_name").GetString();
-
-                    Attendance attendance = new Attendance(id, firstName, lastName, ConvertToDateTime(dateTimeStr));
-                    attendances.Add(attendance);
-                }
-                doc.Dispose();
-                return attendances;
-            }
-            catch (Exception ex)
-            {
-                string message = ex.Message;
-                System.Diagnostics.Debug.WriteLine(message);
+            if (result == null)
                 return null;
+
+            using var doc = JsonDocument.Parse(result);
+            JsonElement entries = doc.RootElement;
+            var entriesArray = entries.EnumerateArray();
+
+            foreach (JsonElement entry in entriesArray)
+            {
+                string dateTimeStr = entry.GetProperty("date_time").GetString();
+                int id = entry.GetProperty("user_id").GetInt32();
+                string firstName = entry.GetProperty("first_name").GetString();
+                string lastName = entry.GetProperty("last_name").GetString();
+
+                Attendance attendance = new Attendance(id, firstName, lastName, ConvertToDateTime(dateTimeStr));
+                attendances.Add(attendance);
             }
+            doc.Dispose();
+            return attendances;
         }
         private static DateTime ConvertToDateTime(string dateTimeStr)
         {
@@ -204,27 +195,16 @@ namespace MobileApp.ApiAccess
 
             HttpClient httpClient = new HttpClient();
 
-            try
+            using (httpClient)
             {
-                using (httpClient)
-                {
-                    Uri uri = new Uri($"https://{host}/{url}");
-                    httpClient.Timeout = new TimeSpan(0, 0, 10);
-                    var httpResponse = await httpClient.GetAsync(uri);
-                    httpResponse.EnsureSuccessStatusCode();
-                    result = await httpResponse.Content.ReadAsStringAsync();
-                }
-                return result;
+                Uri uri = new Uri($"https://{host}/{url}");
+                httpClient.Timeout = new TimeSpan(0, 0, 10);
+                var httpResponse = await httpClient.GetAsync(uri);
+                httpResponse.EnsureSuccessStatusCode();
+                result = await httpResponse.Content.ReadAsStringAsync();
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                return null;
-            }
-            finally
-            {
-                httpClient.Dispose();
-            }
+            httpClient.Dispose();
+            return result;
         }
         
         internal async static Task<string> Post(string url, Dictionary<string, string> postData)
@@ -234,30 +214,17 @@ namespace MobileApp.ApiAccess
 
             string result = null;
             HttpClient httpClient = new HttpClient();
-
-            try
+            using (httpClient)
             {
-                using (httpClient)
-                {
-                    Uri uri = new Uri($"https://{host}/{url}");
-                    httpClient.Timeout = new TimeSpan(0, 0, 10);
-                    var content = new FormUrlEncodedContent(postData);
-                    var httpResponse = await httpClient.PostAsync(uri, content);
-                    httpResponse.EnsureSuccessStatusCode();
-                    result = await httpResponse.Content.ReadAsStringAsync();
-                }
-                return result;
+                Uri uri = new Uri($"https://{host}/{url}");
+                httpClient.Timeout = new TimeSpan(0, 0, 10);
+                var content = new FormUrlEncodedContent(postData);
+                var httpResponse = await httpClient.PostAsync(uri, content);
+                httpResponse.EnsureSuccessStatusCode();
+                result = await httpResponse.Content.ReadAsStringAsync();
             }
-            catch (Exception ex)
-            {
-                string error = ex.Message;
-                System.Diagnostics.Debug.WriteLine(error);
-                return null;
-            }
-            finally
-            {
-                httpClient.Dispose();
-            }
+            httpClient.Dispose();
+            return result;
         }
     }
 
