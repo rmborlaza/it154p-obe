@@ -12,46 +12,47 @@ namespace MobileApp
     public class MainActivity : AppCompatActivity
     {
         Button LoginBtn;
-        EditText UsernameText, PasswordText;
-
-        Button TestButton;
+        EditText Username;
+        EditText Password;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
-
-            UsernameText = FindViewById<EditText>(Resource.Id.LoginUsernameBox);
-            PasswordText = FindViewById<EditText>(Resource.Id.LoginPasswordBox);
-
+            
             LoginBtn = FindViewById<Button>(Resource.Id.LoginBtn);
             LoginBtn.Click += LoginBtn_Click;
+
+            Username = FindViewById<EditText>(Resource.Id.LoginUsernameBox);
+            Password = FindViewById<EditText>(Resource.Id.LoginPasswordBox);
         }
 
         private async void LoginBtn_Click(object sender, System.EventArgs e)
         {
-            string username = UsernameText.Text;
-            string password = PasswordText.Text;
+            string username = Username.Text;
+            string password = Password.Text;
 
             try
             {
-                var result = await UserAccess.Authenticate(username, password);
+                var user = await UserAccess.Authenticate(username, password);
 
-                if (result != null)
+                if (user != null)
                 {
-                    Intent i = new Intent(this, typeof(HomeActivity));
-                    i.PutExtra("UserId", result.IdNumber);
-                    StartActivity(i);
+                    Intent intent = new Intent(this, typeof(HomeActivity));
+                    intent.PutExtra("FullName", $"{user.FirstName} {user.LastName}");
+                    intent.PutExtra("Username", user.Username);
+                    intent.PutExtra("IdNumber", user.IdNumber.ToString());
+                    StartActivity(intent);
                 }
                 else
                 {
-                    Toast.MakeText(this, "Error logging in", ToastLength.Short).Show();
+                    Toast.MakeText(this, "Invalid username or password", ToastLength.Short).Show();
                 }
             }
             catch
             {
-                Toast.MakeText(this, "Error logging in", ToastLength.Short).Show();
+                Toast.MakeText(this, "Runtime error", ToastLength.Short).Show();
             }
         }
 

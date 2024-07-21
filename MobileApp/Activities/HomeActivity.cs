@@ -5,6 +5,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidX.RecyclerView.Widget;
+using Java.Lang;
 using MobileApp.ApiAccess;
 using System;
 using System.Collections.Generic;
@@ -24,36 +25,37 @@ namespace MobileApp
         RecyclerView.LayoutManager AttendanceViewLayoutManager;
         AttendanceViewListAdapter adapter;
 
-        Button MyAccountBtn, RefreshBtn;
-        TextView GreetingText;
+        Button ViewButton;
+        Button RefreshBtn;
 
-        protected override async void OnCreate(Bundle savedInstanceState)
+        protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
             // Create your application here
             SetContentView(Resource.Layout.home);
 
-            AttendanceRecyclerView = FindViewById<RecyclerView>(Resource.Id.recyclerViewAttendance);
-            GreetingText = FindViewById<TextView>(Resource.Id.textViewGreeting);
+            string fullName = Intent.GetStringExtra("FullName");
+            string username = Intent.GetStringExtra("Username");
+            string idNumber = Intent.GetStringExtra("IdNumber");
+            
+            var greetingTextView = FindViewById<TextView>(Resource.Id.textViewGreeting);
+            greetingTextView.Text = $"Hello, {fullName}";
 
-            MyAccountBtn = FindViewById<Button>(Resource.Id.buttonViewAccount);
+            ViewButton = FindViewById<Button>(Resource.Id.buttonViewAccount);
+            ViewButton.Click += (sender, e) =>
+            {
+                Intent intent = new Intent(this, typeof(MyAccountActivity));
+                intent.PutExtra("FullName", fullName);
+                intent.PutExtra("Username", username);
+                intent.PutExtra("IdNumber", idNumber);
+                StartActivity(intent);
+            };
+            
             RefreshBtn = FindViewById<Button>(Resource.Id.buttonViewRefresh);
-
-            MyAccountBtn.Click += MyAccountBtn_Click;
             RefreshBtn.Click += RefreshBtn_Click;
 
-            MyUserAccountId = Intent.GetIntExtra("UserId", 0);
-            MyUserAccount = await UserAccess.GetUser(MyUserAccountId);
-
-            if (MyUserAccount == null)
-            {
-                Toast.MakeText(this, "Failed loading user account", ToastLength.Long).Show();
-                return;
-            }
-
-            GreetingText.Text = $"Hello, {MyUserAccount.FullName}";
-            
+            MyUserAccountId = int.Parse(idNumber);
             attendance = new AttendanceList(MyUserAccountId);
 
             AttendanceRecyclerView = FindViewById<RecyclerView>(Resource.Id.recyclerViewAttendance);
@@ -66,13 +68,6 @@ namespace MobileApp
         private void RefreshBtn_Click(object sender, EventArgs e)
         {
             Refresh();
-        }
-
-        private void MyAccountBtn_Click(object sender, EventArgs e)
-        {
-            Intent i = new Intent(this, typeof(MyAccountActivity));
-            i.PutExtra("UserId", MyUserAccountId);
-            StartActivity(i);
         }
 
         private async void Refresh()
